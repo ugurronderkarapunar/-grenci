@@ -1,11 +1,28 @@
+import importlib.util
+import sys
 from pathlib import Path
-import joblib
-import numpy as np
-import pandas as pd
+
 import streamlit as st
-from sklearn.base import BaseEstimator, TransformerMixin
 
 st.set_page_config(page_title="Öğrenci Başarı ve Risk Tahmin Sistemi", page_icon="🎓", layout="centered")
+
+# --- TEŞHİS: gerekli paketler kurulu mu? Değilse nedenini ekranda göster ---
+_eksik = [m for m in ("joblib", "sklearn", "numpy", "pandas") if importlib.util.find_spec(m) is None]
+if _eksik:
+    _klasor = Path(__file__).parent
+    _req = _klasor / "requirements.txt"
+    st.error(f"Eksik paketler: {_eksik}")
+    st.write("Python sürümü:", sys.version)
+    st.write("app.py klasörü:", str(_klasor))
+    st.write("Klasördeki dosyalar:", sorted(p.name for p in _klasor.iterdir()))
+    st.write("requirements.txt içeriği:")
+    st.code(_req.read_text(encoding="utf-8", errors="replace") if _req.exists() else "requirements.txt BU KLASÖRDE YOK")
+    st.stop()
+
+import joblib  # noqa: E402
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+from sklearn.base import BaseEstimator, TransformerMixin  # noqa: E402
 
 # pkl dosyası app.py ile AYNI klasörde (repo kökü) olmalı
 MODEL_YOLU = Path(__file__).parent / "ogrenci_basari_production_model.pkl"
